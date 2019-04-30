@@ -33,6 +33,9 @@ _eval_env = {
     'List': List,
     'Optional': Optional,
     'Dict': Dict,
+    'BroadcastingList1': BroadcastingList1,
+    'BroadcastingList2': BroadcastingList2,
+    'BroadcastingList3': BroadcastingList3,
 }
 
 
@@ -54,7 +57,6 @@ def get_signature(fn):
     if type_line is None:
         return None
 
-    print(type_line)
     return parse_type_line(type_line)
 
 

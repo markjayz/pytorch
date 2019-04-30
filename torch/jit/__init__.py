@@ -706,13 +706,26 @@ def _try_get_overloaded_fn(mod, field):
     return mod._overloads.get(field, None) if isinstance(mod, ScriptModule) else None
 
 
+class ScriptWarning(Warning):
+    pass
+
+
 def _try_compile_fn(fn):
+    return None
     if inspect.ismethod(fn):
         # Skip methods
         return None
     try:
         return torch.jit.script(fn)
     except Exception as e:
+        if hasattr(fn, '__qualname__'):
+            name = fn.__qualname__
+        elif hasattr(fn, '__name__'):
+            name = fn.__name__
+        else:
+            name = '<unknown>'
+        message = "Inserting a call to Python for '{}' since it could not be compiled:\n{}".format(name, e)
+        warnings.warn(message, category=ScriptWarning, stacklevel=3)
         return None
 
 

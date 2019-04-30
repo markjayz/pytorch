@@ -270,6 +270,19 @@ def _sum_of_list(tensorlist):
     return s
 
 
+def disableModuleHook(fn):
+    """
+    Wraps the function with a `with self.disableModuleHook():` call
+    """
+    def wrapper(*args, **kwargs):
+        if len(args) == 0:
+            raise RuntimeError("No 'self' argument found")
+        self = args[0]
+        with self.disableModuleHook():
+            fn(*args, **kwargs)
+    return wrapper
+
+
 class JitTestCase(TestCase):
     _do_cuda_memory_leak_check = True
     _restored_warnings = False
@@ -7292,6 +7305,7 @@ a")
 
         self.assertEqual((6, torch.ones(3, 4) + 1), bar())
 
+    @disableModuleHook
     def test_python_call_non_tensor_wrong(self):
         with self.assertRaisesRegex(RuntimeError, r"but instead got value of type tuple"):
             def foo():
